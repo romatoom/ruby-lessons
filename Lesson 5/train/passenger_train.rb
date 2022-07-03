@@ -1,8 +1,6 @@
 class PassengerTrain < Train
   def initialize(number)
-    super(number)
-
-    @type = :passenger
+    super(number, :passenger)
   end
 
   def max_speed

@@ -1,7 +1,10 @@
 require_relative "modules/instance_counter"
+require_relative "modules/is_valid"
 
 class Route
   include InstanceCounter
+
+  include IsValid
 
   attr_reader :start_station, :finish_station, :intermediate_stations
 
@@ -9,10 +12,15 @@ class Route
     @start_station = start_station
     @finish_station = finish_station
     @intermediate_stations = []
+
+    validate!
+
     register_instance
   end
 
   def add_intermediate_station_to_end(station)
+    raise "Аргумент должен быть станцией" unless station.class.ancestors.include?(Station) && station.valid?
+
     intermediate_stations << station unless intermediate_stations.include?(station)
   end
 
@@ -25,6 +33,8 @@ class Route
   end
 
   def remove_intermediate_station(station)
+    raise "Аргумент должен быть станцией" unless station.class.ancestors.include?(Station) && station.valid?
+
     intermediate_stations.delete(station)
   end
 
@@ -40,4 +50,10 @@ class Route
   private
 
   attr_writer :intermediate_stations
+
+  def validate!
+    raise "Начальная станция имеет некорректный класс (ожидается класс Station)" unless start_station.class == Station
+
+    raise "Конечная станция имеет некорректный класс (ожидается класс Station)" unless finish_station.class == Station
+  end
 end

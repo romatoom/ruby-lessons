@@ -66,6 +66,7 @@ class RailroadControlSystem
 
     def stop
       puts "Система управления ЖД остановлена"
+      exit
     end
 
     def create_seeds
@@ -94,67 +95,90 @@ class RailroadControlSystem
 
       puts "Созданы маршруты"
 
-      trains["Г-372648"] = CargoTrain.new("Г-372648")
-      trains["Г-635523"] = CargoTrain.new("Г-635523")
-      trains["Г-159274"] = CargoTrain.new("Г-159274")
-      trains["П-062942"] = PassengerTrain.new("П-062942")
-      trains["П-527511"] = PassengerTrain.new("П-527511")
+      trains["Г01-АА"] = CargoTrain.new("Г01-АА")
+      trains["Г02-33"] = CargoTrain.new("Г02-33")
+      trains["Г03ПЧ"] = CargoTrain.new("Г03ПЧ")
+      trains["П01-12"] = PassengerTrain.new("П01-12")
+      trains["П02МР"] = PassengerTrain.new("П02МР")
 
       puts "Созданы поезда"
 
-      trains["Г-372648"].take_route(routes["Москва Октябрьская - Санкт-Петербург-Главн."])
-      trains["Г-635523"].take_route(routes["Санкт-Петербург-Главн. - Москва Октябрьская"])
-      trains["Г-159274"].take_route(routes["Москва Октябрьская - Санкт-Петербург-Главн."])
-      trains["П-062942"].take_route(routes["Санкт-Петербург-Главн. - Москва Октябрьская"])
-      trains["П-527511"].take_route(routes["Москва Октябрьская - Санкт-Петербург-Главн."])
+      trains["Г01-АА"].take_route(routes["Москва Октябрьская - Санкт-Петербург-Главн."])
+      trains["Г02-33"].take_route(routes["Санкт-Петербург-Главн. - Москва Октябрьская"])
+      trains["Г03ПЧ"].take_route(routes["Москва Октябрьская - Санкт-Петербург-Главн."])
+      trains["П01-12"].take_route(routes["Санкт-Петербург-Главн. - Москва Октябрьская"])
+      trains["П02МР"].take_route(routes["Москва Октябрьская - Санкт-Петербург-Главн."])
 
       puts "Поезда проставлены на маршруты"
 
-      5.times { trains["Г-372648"].attach_wagon(CargoWagon.new) }
-      15.times { trains["Г-372648"].attach_wagon(CargoWagon.new("Рузхиммаш")) }
-      30.times { trains["Г-372648"].attach_wagon(CargoWagon.new("ПО \"Вагонмаш\"")) }
-      50.times { trains["Г-372648"].attach_wagon(CargoWagon.new("Калининградский вагоностроительный завод")) }
+      5.times { trains["Г01-АА"].attach_wagon(CargoWagon.new) }
+      15.times { trains["Г01-АА"].attach_wagon(CargoWagon.new("Рузхиммаш")) }
+      30.times { trains["Г01-АА"].attach_wagon(CargoWagon.new("ПО \"Вагонмаш\"")) }
+      50.times { trains["Г01-АА"].attach_wagon(CargoWagon.new("Калининградский вагоностроительный завод")) }
 
-      60.times { trains["Г-635523"].attach_wagon(CargoWagon.new) }
-      120.times { trains["Г-159274"].attach_wagon(CargoWagon.new) }
-      10.times { trains["П-062942"].attach_wagon(PassengerWagon.new) }
-      15.times { trains["П-527511"].attach_wagon(PassengerWagon.new) }
+      60.times { trains["Г02-33"].attach_wagon(CargoWagon.new) }
+      120.times { trains["Г03ПЧ"].attach_wagon(CargoWagon.new) }
+      10.times { trains["П01-12"].attach_wagon(PassengerWagon.new) }
+      15.times { trains["П02МР"].attach_wagon(PassengerWagon.new) }
 
       puts "К поездам присоединены вагоны"
 
-      trains["Г-372648"].move_to_next_station
-      2.times { trains["Г-635523"].move_to_next_station }
-      4.times { trains["Г-159274"].move_to_next_station }
-      1.times { trains["П-062942"].move_to_next_station }
-      5.times { trains["П-527511"].move_to_next_station }
+      trains["Г01-АА"].move_to_next_station
+      2.times { trains["Г02-33"].move_to_next_station }
+      4.times { trains["Г03ПЧ"].move_to_next_station }
+      1.times { trains["П01-12"].move_to_next_station }
+      5.times { trains["П02МР"].move_to_next_station }
 
       puts "Поезда проехали часть маршрута (некоторое количество станций)"
 
       puts "Генерация сидов завершена"
       puts
 
-      trains["Г-372648"].set_manufacturer_title("Уральские локомотивы")
-      puts "Производитель поезда с номером Г-372648: " + trains["Г-372648"].manufacturer_title
+      trains["Г01-АА"].manufacturer_title = "Уральские локомотивы"
+      puts "Производитель поезда с номером Г01-АА: " + trains["Г01-АА"].manufacturer_title
       puts
 
-      trains["Г-372648"].print_wagons_manufacturers
+      trains["Г01-АА"].print_wagons_manufacturers
 
       puts "Station.all:"
       puts Station.all
       puts
 
-      puts "Train.find(\"Г-372648\"):"
-      puts Train.find("Г-372648")
+      puts "Train.find(\"Г01-АА\"):"
+      puts Train.find("Г01-АА")
       puts
 
-      puts "Train.find(\"Г-111111\"):"
-      p Train.find("Г-111111")
+      puts "Train.find(\"Г12-ПР\"):"
+      p Train.find("Г12-ПР")
       puts
 
       puts "Route instances count: " + Route.instances.to_s
       puts "Station instances count: " + Station.instances.to_s
       puts "PassengerTrain instances count: " + PassengerTrain.instances.to_s
       puts "CargoTrain instances count: " + CargoTrain.instances.to_s
+      puts
+
+      train_number = "ПЗД-01"
+
+      # train_number = "WRONG_NUMBER"
+
+      # train = Train.new(train_number, :cargo)
+
+      trains[train_number] = PassengerTrain.new(train_number)
+      puts
+
+    rescue Exception => e
+      puts "Ошибка при создании поезда (#{e.message})"
+      puts
+      raise
+    ensure
+      if trains[train_number]
+        puts "Поезд с номером #{train_number} проходит проверку? " + trains[train_number].valid?.to_s
+        puts
+      end
+
+      puts "Список номеров всех поездов: "
+      Train.all.each { |t| puts t.number }
       puts
     end
 
@@ -313,33 +337,58 @@ class RailroadControlSystem
       puts "1. Пассажирский"
       print "> "
 
-      choice = gets.chomp.to_i
+      choice = gets.chomp
       puts
 
-      case choice
+      raise "Ожидается ввод 0 или 1" unless ["0", "1", "^C"].include? choice
+
+      case choice.to_i
       when 0
         type = :cargo
-        prefix = "> Г-"
       when 1
         type = :passenger
-        prefix = "> П-"
       end
 
+      raise "Некорректный тип поезда" unless Train.allowed_types.include? type
+
       puts "Введите номер поезда"
-      print prefix
+      puts "Формат номера: три буквы или цифры в любом порядке, необязательный дефис, затем ещё 2 буквы или цифры"
+      print "> "
 
       number = gets.chomp
       puts
 
       case type
       when :cargo
-        number = "Г-" + number
         trains[number] = CargoTrain.new(number)
       when :passenger
-        number = "П-" + number
         trains[number] = PassengerTrain.new(number)
       end
 
+      puts "Хотите указать название производителя поезда? (Y - да)"
+      print "> "
+
+      answer = gets.chomp.downcase
+      puts
+
+      if answer == "y"
+        puts "Укажите название производителя"
+        print "> "
+
+        trains[number].manufacturer_title = gets.chomp
+        puts
+
+        raise "Неверно указано название производителя поезда" unless trains[number].valid?
+      end
+
+    rescue RuntimeError => e
+      puts "Ошибка при создании поезда: #{e.message}"
+      puts
+      retry
+    rescue Interrupt
+      puts
+      stop
+    else
       puts "Поезд с номером #{number} создан"
       puts
     end

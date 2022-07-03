@@ -1,32 +1,49 @@
 require_relative "../modules/manufacturer"
 require_relative "../modules/instance_counter"
+require_relative "../modules/is_valid"
 
 class Train
   include InstanceCounter
 
   include Manufacturer
 
-  @@trains = []
+  include IsValid
 
-  def self.find(number)
-    @@trains.find { |train| train.number == number }
+  # три буквы или цифры в любом порядке, необязательный дефис (может быть, а может нет) и еще 2 буквы или цифры после дефиса.
+  NUMBER_FORMAR = /^[а-яa-z\d]{3}-?[а-яa-z\d]{2}$/i
+
+  ALLOWED_TYPES = [:cargo, :passenger]
+
+  @@all = []
+
+  class << self
+    def find(number)
+      @@all.find { |train| train.number == number }
+    end
+
+    def all
+      @@all
+    end
+
+    def allowed_types
+      ALLOWED_TYPES
+    end
   end
 
   attr_reader :speed, :type, :number, :route, :current_station
 
-  def initialize(number)
+  def initialize(number, type)
     @number = number
-    @type = nil
+    @type = type
     @speed = 0
     @current_station = nil
     @wagons = []
-    @@trains << self
-    register_instance
-    set_manufacturer_title "Производитель не указан"
-  end
+    @manufacturer_title = "Производитель не указан"
 
-  def max_speed
-    0
+    validate!
+
+    @@all << self
+    register_instance
   end
 
   def wagons_count
@@ -34,7 +51,9 @@ class Train
   end
 
   def attach_wagon(wagon)
-    wagons << wagon if (speed == 0) && (wagon.type == type)
+    raise "Аргумент должен быть вагоном" unless wagon.class.ancestors.include?(Wagon) && wagon.valid?
+
+    wagons << wagon if speed == 0 && wagon.type == type
   end
 
   def unhook_wagon
@@ -49,11 +68,12 @@ class Train
     puts "Производители вагонов поезда c номером #{self.number}:"
 
     manufacturers_counts.each { |k, v| puts "\"#{k}\": число вагонов - #{v}" }
-
     puts
   end
 
   def take_route(route)
+    raise "Аргумент должен быть маршрутом" unless route.class.ancestors.include?(Route) && route.valid?
+
     self.route = route
 
     route.start_station.take_train(self)
@@ -126,6 +146,22 @@ class Train
 
   def stay
     stay! if speed > 0
+  end
+
+  protected
+
+  def validate!
+    raise "Нельзя создать поезд базового класса Train" if self.class == Train
+
+    raise "Неподдерживаемый тип поезда" unless ALLOWED_TYPES.include?(type)
+
+    raise "Номер должен быть текстовой строкой" unless number.class == String
+
+    raise "Номер имеет некорректный формат" unless number =~ NUMBER_FORMAR
+
+    raise "Скорость не может быть отрицательным значением" if speed < 0
+
+    raise "Некорректное значение производителя поезда" unless manufacturer_title.class == String && manufacturer_title.length > 0
   end
 
   private
