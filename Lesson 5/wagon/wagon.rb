@@ -10,6 +10,8 @@ class Wagon
 
   attr_reader :type
 
+  attr_accessor :number
+
   def initialize(type, manufacturer_title)
     @type = type
     @manufacturer_title = manufacturer_title
@@ -27,5 +29,7 @@ class Wagon
     raise "Название вагона не должно быть пустой строкой" if manufacturer_title == ""
 
     raise "Неподдерживаемый тип вагона" unless ALLOWED_TYPES.include?(type)
+
+    # raise "Номер вагона должен быть положительным целым числом" unless number.class == Fixnum && number > 0
   end
 end

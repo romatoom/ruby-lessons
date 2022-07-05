@@ -17,6 +17,21 @@ class Train
   @@all = []
 
   class << self
+    def lambda_print_wagons
+      ->(wagon) do
+        case wagon.type
+        when :passenger
+          free_value = wagon.number_of_empty_seats
+          taked_value = wagon.number_of_taked_seats
+        when :cargo
+          free_value = wagon.available_volume
+          taked_value = wagon.taked_volume
+        end
+
+        puts "#{wagon.number}, #{wagon.type}, #{free_value}, #{taked_value}"
+      end
+    end
+
     def find(number)
       @@all.find { |train| train.number == number }
     end
@@ -52,6 +67,8 @@ class Train
 
   def attach_wagon(wagon)
     raise "Аргумент должен быть вагоном" unless wagon.class.ancestors.include?(Wagon) && wagon.valid?
+
+    wagon.number = wagons_count + 1
 
     wagons << wagon if speed == 0 && wagon.type == type
   end
@@ -146,6 +163,21 @@ class Train
 
   def stay
     stay! if speed > 0
+  end
+
+  def each_wagons(&block)
+    return until block_given?
+
+    wagons.each { |wagon| yield wagon }
+  end
+
+  # Номер вагона (можно назначать автоматически), тип вагона, кол-во свободных и занятых мест (для пассажирского вагона) или кол-во свободного и занятого объема (для грузовых вагонов).
+  def print_wagons_list
+    each_wagons(&Train.lambda_print_wagons)
+  end
+
+  def find_wagon_by_number(number)
+    wagons.find { |wagon| wagon.number == number }
   end
 
   protected

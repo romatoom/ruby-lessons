@@ -30,6 +30,7 @@ class RailroadControlSystem
         puts "1. Управление станциями"
         puts "2. Управление поездами"
         puts "3. Управление маршрутами"
+        puts "4. Информация о поездах на станциях"
         print "> "
 
         choice = gets.chomp.to_i
@@ -44,6 +45,8 @@ class RailroadControlSystem
           manage_trains
         when 3
           manage_routes
+        when 4
+          print_info_about_trains_on_stantions
         end
       end
 
@@ -111,15 +114,15 @@ class RailroadControlSystem
 
       puts "Поезда проставлены на маршруты"
 
-      5.times { trains["Г01-АА"].attach_wagon(CargoWagon.new) }
-      15.times { trains["Г01-АА"].attach_wagon(CargoWagon.new("Рузхиммаш")) }
-      30.times { trains["Г01-АА"].attach_wagon(CargoWagon.new("ПО \"Вагонмаш\"")) }
-      50.times { trains["Г01-АА"].attach_wagon(CargoWagon.new("Калининградский вагоностроительный завод")) }
+      2.times { trains["Г01-АА"].attach_wagon(CargoWagon.new(500)) }
+      3.times { trains["Г01-АА"].attach_wagon(CargoWagon.new(600, "Рузхиммаш")) }
+      4.times { trains["Г01-АА"].attach_wagon(CargoWagon.new(700, "ПО \"Вагонмаш\"")) }
+      5.times { trains["Г01-АА"].attach_wagon(CargoWagon.new(800, "Калининградский вагоностроительный завод")) }
 
-      60.times { trains["Г02-33"].attach_wagon(CargoWagon.new) }
-      120.times { trains["Г03ПЧ"].attach_wagon(CargoWagon.new) }
-      10.times { trains["П01-12"].attach_wagon(PassengerWagon.new) }
-      15.times { trains["П02МР"].attach_wagon(PassengerWagon.new) }
+      6.times { trains["Г02-33"].attach_wagon(CargoWagon.new(800)) }
+      12.times { trains["Г03ПЧ"].attach_wagon(CargoWagon.new(750)) }
+      2.times { trains["П01-12"].attach_wagon(PassengerWagon.new(54)) }
+      3.times { trains["П02МР"].attach_wagon(PassengerWagon.new(48)) }
 
       puts "К поездам присоединены вагоны"
 
@@ -188,7 +191,8 @@ class RailroadControlSystem
         puts "0. Назад (в главное меню)"
         puts "1. Создать станцию"
         puts "2. Посмотреть список станций"
-        puts "3. Просмотреть список поездов на станции"
+        puts "3. Просмотреть список поездов на станции (детально)"
+        puts "4. Просмотреть список поездов на станции (общий)"
         print "> "
 
         choice = gets.chomp.to_i
@@ -203,6 +207,8 @@ class RailroadControlSystem
           print_stations_list
         when 3
           print_trains_on_station
+        when 4
+          print_trains_list_on_station
         end
       end
     end
@@ -217,6 +223,8 @@ class RailroadControlSystem
         puts "4. Отцепить вагоны от поезда"
         puts "5. Переместить поезд по маршруту вперед"
         puts "6. Переместить поезд по маршруту назад"
+        puts "7. Вывести список вагонов"
+        puts "8. Занять место в вагоне"
         print "> "
 
         choice = gets.chomp.to_i
@@ -237,6 +245,10 @@ class RailroadControlSystem
           move_train_to_next_station
         when 6
           move_train_to_previous_station
+        when 7
+          print_train_wagons_list
+        when 8
+          take_wagon_volume
         end
       end
     end
@@ -264,6 +276,34 @@ class RailroadControlSystem
           insert_intermediate_station_to_route
         end
       end
+    end
+
+    def print_info_about_trains_on_stantions
+      puts "Информация о поездах на станциях:"
+      puts
+
+      stations.each_value do |station|
+        puts "Станция #{station.title}"
+        puts
+
+        station.each_trains do |train|
+          print "  "
+          Station.lambda_print_trains.call(train)
+          puts
+
+          train.each_wagons do |wagon|
+            print "    "
+            Train.lambda_print_wagons.call(wagon)
+          end
+
+          puts
+        end
+
+        puts "--------------------------------"
+        puts
+      end
+
+      puts
     end
 
     def create_station
@@ -328,6 +368,14 @@ class RailroadControlSystem
         end
       end
 
+      puts
+    end
+
+    def print_trains_list_on_station
+      station = input_station
+      return command_cancel if station.nil?
+
+      station.print_train_list
       puts
     end
 
@@ -410,16 +458,39 @@ class RailroadControlSystem
       train = input_train
       return command_cancel if train.nil?
 
-      puts "Какое число вагонов прицепить?"
+      puts "Какое число вагонов с одинаковыми характеристиками прицепить?"
       print "> "
 
       wagons_count = gets.chomp.to_i
 
+      puts "Хотите указать название производителя поезда? (Y - да)"
+      print "> "
+
+      answer = gets.chomp.downcase
+      puts
+
+      if answer == "y"
+        puts "Укажите название производителя вагонов"
+        print "> "
+
+        manufacturer_title = gets.chomp
+      end
+
       case train.class
       when PassengerTrain
-        wagons_count.times { train.attach_wagon(PassengerWagon.new) }
+        puts "Какое общее число мест у вагонов?"
+        print "> "
+
+        volume = gets.chomp.to_i
+
+        wagons_count.times { train.attach_wagon(PassengerWagon.new(volume, manufacturer_title)) }
       when CargoTrain
-        wagons_count.times { train.attach_wagon(CargoWagon.new) }
+        puts "Каков объём у вагонов?"
+        print "> "
+
+        volume = gets.chomp.to_i
+
+        wagons_count.times { train.attach_wagon(CargoWagon.new(volume, manufacturer_title)) }
       end
 
       puts "К поезду с номером #{train.number} прицеплено #{wagons_count} вагонов"
@@ -482,6 +553,86 @@ class RailroadControlSystem
         puts "Это начальная станция маршрута" if train.current_station == train.route.start_station
       else
         puts "Поезд остался на станции #{station.title}, так как она является начальной станцией маршрута"
+      end
+
+      puts
+    end
+
+    def print_train_wagons_list
+      train = input_train
+      return command_cancel if train.nil?
+
+      puts "Список вагонов:"
+      train.print_wagons_list
+      puts
+    end
+
+    def take_wagon_volume
+      train = input_train
+      return command_cancel if train.nil?
+
+      wagons_numbers = []
+
+      train.each_wagons { |wagon| wagons_numbers << wagon.number.to_s }
+
+      puts "Введите номер вагона, в котором нужно занять место"
+      puts "Список доступных номеров вагонов: " + wagons_numbers.join(", ")
+      print "> "
+
+      wagon_number = input_from_list(wagons_numbers).to_i
+
+      wagon = train.find_wagon_by_number(wagon_number)
+
+      case wagon.type
+      when :passenger
+        if wagon.number_of_empty_seats == 0
+          puts "Вагон полностью занят. Вы не можете занять место в этом вагоне"
+          puts
+
+          return
+        end
+
+        begin
+          puts "Какое число мест занять (доступно мест: #{wagon.number_of_empty_seats})?"
+          print "> "
+
+          count = gets.chomp.to_i
+          puts
+
+          count.times { wagon.take_a_seat }
+
+        rescue RuntimeError => e
+          puts "Ошибка: " + e.message
+          puts
+
+          retry
+        else
+          puts "В вагоне №#{wagon.number} поезда номер #{train.number} занято #{count} мест"
+        end
+      when :cargo
+        if wagon.available_volume == 0
+          puts "Вагон полностью занят. Вы не можете занять объём в этом вагоне"
+          puts
+
+          return
+        end
+
+        begin
+          puts "Какой объём вагона занять (доступный объём: #{wagon.available_volume})?"
+          print "> "
+
+          volume = gets.chomp.to_f
+          puts
+
+          wagon.take_a_volume(volume)
+        rescue RuntimeError => e
+          puts "Ошибка: " + e.message
+          puts
+
+          retry
+        else
+          puts "В вагоне №#{wagon.number} поезда номер #{train.number} занят объём в размере #{volume}"
+        end
       end
 
       puts
