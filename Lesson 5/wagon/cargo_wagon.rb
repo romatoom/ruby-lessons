@@ -2,6 +2,7 @@ class CargoWagon < Wagon
   attr_reader :total_volume, :taked_volume
 
   def initialize(total_volume, manufacturer_title = "Производитель грузового поезда не указан")
+    manufacturer_title ||= "Производитель грузового поезда не указан"
     super(:cargo, manufacturer_title)
 
     @total_volume = total_volume

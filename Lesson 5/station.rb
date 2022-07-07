@@ -6,20 +6,13 @@ class Station
 
   include IsValid
 
-  @@all = []
+  @all = []
 
   class << self
-    def lambda_print_trains
-      ->(train) { puts "#{train.number}, #{train.type}, #{train.wagons_count}" }
-    end
-
-    def all
-      @@all
-    end
+    attr_reader :all
   end
 
-  attr_reader :train_list
-  attr_reader :title
+  attr_reader :train_list, :title
 
   def initialize(title)
     @title = title
@@ -27,7 +20,7 @@ class Station
 
     validate!
 
-    @@all << self
+    Station.all << self
     register_instance
   end
 
@@ -46,11 +39,12 @@ class Station
   end
 
   def print_train_list
-    each_trains(&Station.lambda_print_trains)
+    each_trains(&Train.lambda_print_train)
+    puts
   end
 
   def each_trains(&block)
-    return until block_given?
+    return unless block_given?
 
     train_list.each { |train| block.call(train) }
   end
@@ -58,9 +52,8 @@ class Station
   private
 
   def validate!
-    raise "Название станции должно быть текстовой строкой" unless title.class == String
+    raise "Название станции должно быть текстовой строкой" unless title.instance_of?(String)
 
     raise "Название станции не должно быть пустой строкой" if title == ""
   end
 end
-

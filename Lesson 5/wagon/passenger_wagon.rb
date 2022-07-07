@@ -9,7 +9,7 @@ class PassengerWagon < Wagon
   end
 
   def take_a_seat
-    return take_a_seat! if number_of_empty_seats > 0
+    return take_a_seat! if number_of_empty_seats.positive?
 
     raise "Вы пытаетесь занять число мест, превышающее допустимое количество"
   end

@@ -249,12 +249,7 @@ class RailroadControlSystem
     passenger_trains = station.train_list_by_type(:passenger)
     cargo_trains = station.train_list_by_type(:cargo)
 
-    if (passenger_trains.empty? && cargo_trains.empty?)
-      puts "На станции нет поездов"
-      puts
-
-      return
-    end
+    return puts "На станции нет поездов\n\n" if (passenger_trains.empty? && cargo_trains.empty?)
 
     if !passenger_trains.empty?
       puts "Пассажирские поезда на станции:"
@@ -286,16 +281,16 @@ class RailroadControlSystem
     choice = gets.chomp.to_i
     puts
 
+    type = choice.zero? ? :cargo : :passenger
+
     case choice
     when 0
-      type = :cargo
       prefix = "> Г-"
     when 1
-      type = :passenger
       prefix = "> П-"
     end
 
-    puts "Введите номер поезда"
+    puts "Введите номер поезда2"
     print prefix
 
     number = gets.chomp

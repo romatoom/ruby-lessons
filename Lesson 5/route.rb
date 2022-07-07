@@ -25,11 +25,10 @@ class Route
   end
 
   def add_intermediate_station_after_specified(station, specified_station)
-    unless intermediate_stations.include?(station)
-      index = intermediate_stations.find_index(specified_station)
-      intermediate_stations.insert(index, station) unless index.nil?
-      index
-    end
+    return if intermediate_stations.include?(station)
+
+    index = intermediate_stations.find_index(specified_station)
+    intermediate_stations.insert(index, station) unless index.nil?
   end
 
   def remove_intermediate_station(station)
@@ -43,7 +42,7 @@ class Route
   end
 
   def to_s
-    stations_titles_list = stations_list.map { |station| station.title }
+    stations_titles_list = stations_list.map(&:title)
     stations_titles_list.join(" => ")
   end
 
@@ -52,8 +51,7 @@ class Route
   attr_writer :intermediate_stations
 
   def validate!
-    raise "Начальная станция имеет некорректный класс (ожидается класс Station)" unless start_station.class == Station
-
-    raise "Конечная станция имеет некорректный класс (ожидается класс Station)" unless finish_station.class == Station
+    raise "Начальная станция имеет некорректный класс (ожидается класс Station)" unless start_station.instance_of?(Station)
+    raise "Конечная станция имеет некорректный класс (ожидается класс Station)" unless finish_station.instance_of?(Station)
   end
 end

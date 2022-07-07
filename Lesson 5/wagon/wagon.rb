@@ -6,7 +6,7 @@ class Wagon
 
   include IsValid
 
-  ALLOWED_TYPES = [:cargo, :passenger]
+  ALLOWED_TYPES = %i[cargo passenger].freeze
 
   attr_reader :type
 
@@ -19,12 +19,21 @@ class Wagon
     validate!
   end
 
+  def self.lambda_print_wagon
+    lambda do |wagon|
+      free_value = wagon.type == :passenger ? wagon.number_of_empty_seats : wagon.available_volume
+      taked_value = wagon.type == :passenger ? wagon.number_of_taked_seats : wagon.taked_volume
+
+      puts "#{wagon.number}, #{wagon.type}, #{free_value}, #{taked_value}"
+    end
+  end
+
   protected
 
   def validate!
-    raise "Нельзя создать вагон базового класса Wagon" if self.class == Wagon
+    raise "Нельзя создать вагон базового класса Wagon" if instance_of?(Wagon)
 
-    raise "Название вагона должно быть текстовой строкой" unless manufacturer_title.class == String
+    raise "Название вагона должно быть текстовой строкой" unless manufacturer_title.instance_of?(String)
 
     raise "Название вагона не должно быть пустой строкой" if manufacturer_title == ""
 
