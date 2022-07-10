@@ -1,3 +1,6 @@
+require_relative "accessors"
+
 module Manufacturer
-  attr_accessor :manufacturer_title
+  extend Accessors
+  attr_accessor_with_history :manufacturer_title, :manufacturer_address
 end

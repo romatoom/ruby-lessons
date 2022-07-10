@@ -67,6 +67,7 @@ class RailroadControlSystem
       puts "Созданы маршруты"
 
       trains["Г01-АА"] = CargoTrain.new("Г01-АА")
+
       trains["Г02-33"] = CargoTrain.new("Г02-33")
       trains["Г03ПЧ"] = CargoTrain.new("Г03ПЧ")
       trains["П01-12"] = PassengerTrain.new("П01-12")
@@ -100,9 +101,72 @@ class RailroadControlSystem
       trains["П01-12"].move_to_next_station
       5.times { trains["П02МР"].move_to_next_station }
 
-      puts "Поезда проехали часть маршрута (некоторое количество станций)"
+      puts "Поезда проехали часть маршрута (некоторое количество станций)\n\n"
+
+      test_accessor
+
+      test_validation_presence
+      test_validation_format
+      test_validation_type
+
+      test_manufact
 
       puts "Генерация сидов завершена\n\n"
+    end
+
+    def test_accessor
+      puts "Текущий производитель поезда: #{trains['Г01-АА'].manufacturer_title}"
+      trains["Г01-АА"].manufacturer_title = "Новое название"
+      trains["Г01-АА"].manufacturer_title = "Свежее название"
+      trains["Г01-АА"].manufacturer_title = "Последнее название"
+      puts "История наименований: #{trains['Г01-АА'].manufacturer_title_history}"
+
+      puts "Текущий производитель поезда: #{trains['Г01-АА'].manufacturer_address}"
+      trains["Г01-АА"].manufacturer_address = "Новый адрес"
+      trains["Г01-АА"].manufacturer_address = "Более новый адрес"
+      puts "История адресов: #{trains['Г01-АА'].manufacturer_address_history}\n\n"
+
+      first_wagon = trains["Г01-АА"].find_wagon_by_number(1)
+      first_wagon.number = "123"
+    rescue RuntimeError => e
+      puts "Error: #{e.message}"
+    ensure
+      puts
+    end
+
+    def test_validation_presence
+      trains["Г123456"] = CargoTrain.new("")
+    rescue RuntimeError => e
+      puts "Error: #{e.message}"
+    ensure
+      puts
+    end
+
+    def test_validation_format
+      trains["Г123456"] = CargoTrain.new("As-231123")
+    rescue RuntimeError => e
+      puts "Error: #{e.message}"
+    ensure
+      puts
+    end
+
+    def test_validation_type
+      trains["Г123456"] = CargoTrain.new(12_345)
+    rescue RuntimeError => e
+      puts "Error: #{e.message}"
+    ensure
+      puts
+    end
+
+    def test_manufact
+      puts "Поезд с номером #{trains['Г01-АА'].number} валидный? #{trains['Г01-АА'].valid?}"
+      trains["Г01-АА"].manufacturer_title = 12_345
+      puts "Меняем аттрибут manufacturer_title указанного поезда на невалидный"
+      puts "Поезд с номером #{trains['Г01-АА'].number} валидный? #{trains['Г01-АА'].valid?}"
+    rescue RuntimeError => e
+      puts "Error: #{e.message}"
+    ensure
+      puts
     end
 
     def print_info_about_trains_on_stantions

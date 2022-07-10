@@ -1,10 +1,10 @@
 require_relative "modules/instance_counter"
-require_relative "modules/is_valid"
+require_relative "modules/validation"
 
 class Station
   include InstanceCounter
 
-  include IsValid
+  include Validation
 
   @all = []
 
@@ -13,6 +13,9 @@ class Station
   end
 
   attr_reader :train_list, :title
+
+  validate :title, :type, String
+  validate :title, :presence
 
   def initialize(title)
     @title = title
@@ -47,13 +50,5 @@ class Station
     return unless block_given?
 
     train_list.each { |train| block.call(train) }
-  end
-
-  private
-
-  def validate!
-    raise "Название станции должно быть текстовой строкой" unless title.instance_of?(String)
-
-    raise "Название станции не должно быть пустой строкой" if title == ""
   end
 end

@@ -1,20 +1,26 @@
 require_relative "../modules/manufacturer"
-require_relative "../modules/is_valid"
+require_relative "../modules/validation"
+require_relative "../modules/accessors"
 
 class Wagon
   include Manufacturer
 
-  include IsValid
+  include Validation
+
+  extend Accessors
 
   ALLOWED_TYPES = %i[cargo passenger].freeze
 
   attr_reader :type
 
-  attr_accessor :number
+  strong_attr_accessor :number, Integer
+
+  validate :number, :type, Integer
 
   def initialize(type, manufacturer_title)
     @type = type
     @manufacturer_title = manufacturer_title
+    @number = 0
 
     validate!
   end
@@ -30,15 +36,8 @@ class Wagon
 
   protected
 
-  def validate!
+  def additional_validate!
     raise "Нельзя создать вагон базового класса Wagon" if instance_of?(Wagon)
-
-    raise "Название вагона должно быть текстовой строкой" unless manufacturer_title.instance_of?(String)
-
-    raise "Название вагона не должно быть пустой строкой" if manufacturer_title == ""
-
     raise "Неподдерживаемый тип вагона" unless ALLOWED_TYPES.include?(type)
-
-    # raise "Номер вагона должен быть положительным целым числом" unless number.class == Fixnum && number > 0
   end
 end

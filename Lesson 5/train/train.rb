@@ -1,20 +1,31 @@
 require_relative "../modules/manufacturer"
 require_relative "../modules/instance_counter"
-require_relative "../modules/is_valid"
+require_relative "../modules/validation"
 
 class Train
   include InstanceCounter
 
   include Manufacturer
 
-  include IsValid
+  include Validation
 
-  # три буквы или цифры в любом порядке, необязательный дефис (может быть, а может нет) и еще 2 буквы или цифры после дефиса.
-  NUMBER_FORMAR = /^[а-яa-z\d]{3}-?[а-яa-z\d]{2}$/i.freeze
+  NUMBER_FORMAT = /^[а-яa-z\d]{3}-?[а-яa-z\d]{2}$/i.freeze
 
   ALLOWED_TYPES = %i[cargo passenger].freeze
 
   @all = []
+
+  validate :number, :presence
+  validate :number, :type, String
+  validate :number, :format, NUMBER_FORMAT
+
+  validate :speed, :type, Float
+
+  validate :manufacturer_title, :presence
+  validate :manufacturer_title, :type, String
+
+  validate :manufacturer_address, :presence
+  validate :manufacturer_address, :type, String
 
   class << self
     attr_reader :all
@@ -37,10 +48,12 @@ class Train
   def initialize(number, type)
     @number = number
     @type = type
-    @speed = 0
+    @speed = 0.0
     @current_station = nil
+    @route = nil
     @wagons = []
     @manufacturer_title = "Производитель не указан"
+    @manufacturer_address = "Адрес производителя не указан"
 
     validate!
 
@@ -144,10 +157,10 @@ class Train
     stay! if speed.positive?
   end
 
-  def each_wagons
+  def each_wagons(&block)
     return unless block_given?
 
-    wagons.each(&block)
+    wagons.each { |wagon| block.call(wagon) }
   end
 
   def print_wagons_list
@@ -161,14 +174,10 @@ class Train
     wagons.find { |wagon| wagon.number == number }
   end
 
-  protected
-
-  def validate!
+  def additional_validate!
     raise "Нельзя создать поезд базового класса Train" if instance_of?(Train)
     raise "Неподдерживаемый тип поезда" unless ALLOWED_TYPES.include?(type)
-    raise "Номер имеет некорректный формат" unless number =~ NUMBER_FORMAR
     raise "Скорость не может быть отрицательным значением" if speed.negative?
-    raise "Некорректное значение производителя поезда" unless manufacturer_title.instance_of?(String) && manufacturer_title.length.positive?
   end
 
   private
@@ -182,6 +191,6 @@ class Train
   end
 
   def stay!
-    self.speed = 0
+    self.speed = 0.0
   end
 end

@@ -1,12 +1,16 @@
 require_relative "modules/instance_counter"
-require_relative "modules/is_valid"
+require_relative "modules/validation"
+require_relative "station"
 
 class Route
   include InstanceCounter
 
-  include IsValid
+  include Validation
 
   attr_reader :start_station, :finish_station, :intermediate_stations
+
+  validate :start_station, :type, Station
+  validate :finish_station, :type, Station
 
   def initialize(start_station, finish_station)
     @start_station = start_station
@@ -49,9 +53,4 @@ class Route
   private
 
   attr_writer :intermediate_stations
-
-  def validate!
-    raise "Начальная станция имеет некорректный класс (ожидается класс Station)" unless start_station.instance_of?(Station)
-    raise "Конечная станция имеет некорректный класс (ожидается класс Station)" unless finish_station.instance_of?(Station)
-  end
 end
